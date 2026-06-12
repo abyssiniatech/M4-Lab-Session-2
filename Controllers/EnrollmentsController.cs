@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("api/[controller]")]
+#pragma warning disable CA1050 // Declare types in namespaces
 public class EnrollmentsController(IEnrollmentService enrolementService
+#pragma warning restore CA1050 // Declare types in namespaces
  ) : ControllerBase
 {
-    private IEnrollmentService enrollmentService;
+    private readonly IEnrollmentService? enrollmentService;
 
     [HttpGet] 
     public async Task<IActionResult> GetAll()
@@ -14,6 +16,10 @@ public class EnrollmentsController(IEnrollmentService enrolementService
     }
 //   get/api/enrollments/{id} return one or 404
 
+
+
+
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
@@ -22,13 +28,22 @@ public class EnrollmentsController(IEnrollmentService enrolementService
     }
 
 
+
+
+
     // post/api/enrollments create new record
     [HttpPost]
 public async Task<IActionResult> Create([FromBody] CreateEnrollmentRequest request)
 {
-var record = await enrolementService.EnrollAsync(request.StudentId, request.CourseCode);
-return CreatedAtAction(nameof(GetById), new { id = record.Id }, record);
+// #pragma warning disable CS8604 // Possible null reference argument.
+        var record = await enrolementService.EnrollAsync(request.StudentId, request.CourseCode);
+// #pragma warning restore CS8604 // Possible null reference argument.
+        return CreatedAtAction(nameof(GetById), new { id = record.Id }, record);
 }
+
+
+
+
 
 
 
@@ -36,8 +51,12 @@ return CreatedAtAction(nameof(GetById), new { id = record.Id }, record);
 [HttpDelete("{id}")]
 public async Task<IActionResult> Delete(string id)
 {
-var deleted = await enrollmentService.DeleteAsync(id);
-return deleted ? NoContent() : NotFound();
+        // #pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+        var deleted = await enrollmentService.DeleteAsync(id);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                              // #pragma warning restore CS8602 // Dereference of a possibly null reference.
+        return deleted ? NoContent() : NotFound();
 
 
 
@@ -52,6 +71,6 @@ return deleted ? NoContent() : NotFound();
 
 public class CreateEnrollmentRequest
 {
-    public string CourseCode { get; internal set; }
-    public string StudentId { get; internal set; }
+    public string? CourseCode { get; internal set; }
+    public string? StudentId { get; internal set; }
 }
